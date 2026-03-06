@@ -10,6 +10,7 @@
 
   let client = null;
   let pollingTimer = 0;
+  const HITOMI_OAUTH_REDIRECT = "https://hitomicompanion.github.io/";
 
   const setStatus = (msg, isError) => {
     if (!statusEl) return;
@@ -44,14 +45,7 @@
   };
 
   const redirectTo = () => {
-    try {
-      const u = new URL(window.location.href);
-      u.hash = "";
-      u.search = "";
-      return `${u.origin}${u.pathname}`;
-    } catch {
-      return `${window.location.origin}${window.location.pathname}`;
-    }
+    return HITOMI_OAUTH_REDIRECT;
   };
 
   const cleanCallbackParams = () => {
