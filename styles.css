@@ -1,0 +1,110 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f3fb;
+  --panel: #ffffff;
+  --panel-border: #e5ddee;
+  --text: #1f1a27;
+  --muted: #6f6380;
+  --pink: #ea8ccf;
+  --pink-strong: #d95cb5;
+  --x-bg: #101115;
+  --google-bg: #ffffff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at 20% 10%, #fff7fd 0%, var(--bg) 55%, #efe9f7 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 14px 34px rgba(34, 19, 54, 0.12);
+}
+.hero h1 { margin: 0 0 6px; font-size: 1.45rem; }
+.hero p { margin: 0 0 18px; color: var(--muted); }
+.actions { display: grid; gap: 10px; }
+.oauth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid #d8cfdf;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 0.98rem;
+  cursor: pointer;
+  background: #fff;
+}
+.oauth-btn .logo {
+  width: 20px;
+  text-align: center;
+  font-weight: 700;
+}
+.oauth-btn.google { background: var(--google-bg); }
+.oauth-btn.x { background: var(--x-bg); color: #fff; border-color: #0a0b0d; }
+.divider {
+  margin: 14px 0 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+.divider span {
+  background: var(--panel);
+  padding: 0 10px;
+}
+.magic-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.magic-link input {
+  width: 100%;
+  border: 1px solid #d8cfdf;
+  border-radius: 10px;
+  padding: 10px 11px;
+  font-size: 0.95rem;
+}
+.magic-link button {
+  border: 1px solid #b95ca0;
+  background: linear-gradient(180deg, #f6b4e4, var(--pink));
+  color: #2d1326;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.status {
+  margin-top: 14px;
+  min-height: 22px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.footnote {
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+@media (max-width: 480px) {
+  .auth-card { padding: 18px; border-radius: 14px; }
+  .hero h1 { font-size: 1.25rem; }
+  .magic-link { grid-template-columns: 1fr; }
+}

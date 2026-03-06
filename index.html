@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hitomi Companion</title>
+    <meta name="description" content="Hitomi Companion sign-in" />
+    <link rel="stylesheet" href="styles.css?v=20260305a" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="auth-card" aria-label="Hitomi Companion sign-in">
+        <header class="hero">
+          <h1>Welcome to Hitomi Companion</h1>
+          <p>Sign in to continue your Android companion setup.</p>
+        </header>
+
+        <div class="actions">
+          <button class="oauth-btn google" type="button" id="authGoogleBtn" aria-label="Continue with Google">
+            <span class="logo">G</span>
+            <span>Continue with Google</span>
+          </button>
+
+          <button class="oauth-btn x" type="button" id="authXBtn" aria-label="Continue with X">
+            <span class="logo">X</span>
+            <span>Continue with X</span>
+          </button>
+        </div>
+
+        <div class="divider" role="separator" aria-label="Or use a magic link"><span>OR USE A MAGIC LINK</span></div>
+
+        <form class="magic-link" id="magicLinkForm">
+          <input type="email" id="magicEmail" placeholder="you@example.com" autocomplete="email" required />
+          <button type="submit" id="magicSendBtn">Send Link</button>
+        </form>
+
+        <div class="status" id="authStatus" role="status" aria-live="polite">
+          Phase A scaffold ready. Auth wiring lands in Phase B.
+        </div>
+      </section>
+
+      <section class="footnote">
+        <p>Hitomi Companion is currently available on Android.</p>
+      </section>
+    </main>
+
+    <script src="js/app.js?v=20260305a"></script>
+  </body>
+</html>
