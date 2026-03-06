@@ -96,6 +96,34 @@ body {
   color: var(--muted);
   font-size: 0.92rem;
 }
+.status.error { color: #a92a63; }
+.agent-hidden { display: none !important; }
+.session {
+  margin-top: 12px;
+  border: 1px solid #eadcf0;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fcf9ff;
+}
+.session-title {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.session-row {
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+.signout-btn {
+  border: 1px solid #d8cfdf;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
 .footnote {
   max-width: 460px;
   width: 100%;

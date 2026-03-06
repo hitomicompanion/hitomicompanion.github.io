@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Hitomi Companion</title>
     <meta name="description" content="Hitomi Companion sign-in" />
-    <link rel="stylesheet" href="styles.css?v=20260305a" />
+    <link rel="stylesheet" href="styles.css?v=20260306b" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      window.__HITOMI_SUPABASE_CONFIG = window.__HITOMI_SUPABASE_CONFIG || {
+        url: "https://gkfhxhrleuauhnuewfmw.supabase.co",
+        anonKey: "sb_publishable_r_NH0OEY5Y6rNy9rzPu1NQ_PYGZs5Nj",
+      };
+    </script>
   </head>
   <body>
     <main class="page">
@@ -34,8 +41,14 @@
           <button type="submit" id="magicSendBtn">Send Link</button>
         </form>
 
+        <div class="session agent-hidden" id="sessionPanel">
+          <div class="session-title">Signed in</div>
+          <div class="session-row" id="sessionIdentity">No active session.</div>
+          <button class="signout-btn" type="button" id="signOutBtn">Sign out</button>
+        </div>
+
         <div class="status" id="authStatus" role="status" aria-live="polite">
-          Phase A scaffold ready. Auth wiring lands in Phase B.
+          Checking sign-in status...
         </div>
       </section>
 
@@ -44,6 +57,6 @@
       </section>
     </main>
 
-    <script src="js/app.js?v=20260305a"></script>
+    <script src="js/app.js?v=20260306b"></script>
   </body>
 </html>
