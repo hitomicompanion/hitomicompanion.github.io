@@ -10,7 +10,17 @@
 
   let client = null;
   let pollingTimer = 0;
+  let androidHandoffInFlight = false;
   const HITOMI_OAUTH_REDIRECT = "https://hitomicompanion.github.io/";
+  const ANDROID_HANDOFF_ONESHOT_KEY = "hitomi_android_auth_handoff_done";
+  const ANDROID_HANDOFF_FUNCTION = "android-auth-handoff";
+  // Keep Agent1c fallback target explicit so reverting app-side routing later is trivial.
+  const ANDROID_DEEP_LINK_PRIMARY = "hitomicompanion://auth/callback";
+  const ANDROID_DEEP_LINK_FALLBACK = "agent1cai://auth/callback";
+
+  const getParams = () => new URLSearchParams(window.location.search || "");
+  const isAndroidAuthMode = () => String(getParams().get("android_auth") || "") === "1";
+  const getAndroidProviderHint = () => String(getParams().get("android_provider") || "").trim().toLowerCase();
 
   const setStatus = (msg, isError) => {
     if (!statusEl) return;
@@ -45,7 +55,17 @@
   };
 
   const redirectTo = () => {
-    return HITOMI_OAUTH_REDIRECT;
+    try {
+      const u = new URL(HITOMI_OAUTH_REDIRECT);
+      if (isAndroidAuthMode()) {
+        u.searchParams.set("android_auth", "1");
+        const hint = getAndroidProviderHint();
+        if (hint) u.searchParams.set("android_provider", hint);
+      }
+      return u.toString();
+    } catch {
+      return HITOMI_OAUTH_REDIRECT;
+    }
   };
 
   const cleanCallbackParams = () => {
@@ -96,7 +116,7 @@
   };
 
   const processCallbackIfPresent = async () => {
-    const params = new URLSearchParams(window.location.search || "");
+    const params = getParams();
     const code = String(params.get("code") || "").trim();
     if (!code) return;
     const c = getClient();
@@ -129,7 +149,80 @@
       setStatus(error.message || "Session check failed.", true);
       return;
     }
-    applySignedState(data?.session || null);
+    const session = data?.session || null;
+    applySignedState(session);
+    await maybeReturnToAndroidApp(session);
+  };
+
+  const createAndroidHandoff = async (session) => {
+    const cfg = getConfig();
+    if (!cfg.ok) throw new Error("Supabase config missing.");
+    const token = String(session?.access_token || "").trim();
+    if (!token) throw new Error("No auth token available for Android handoff.");
+    const headers = {
+      "Content-Type": "application/json",
+      apikey: cfg.anonKey,
+      Authorization: `Bearer ${token}`,
+    };
+    const body = {
+      action: "create",
+      session: {
+        access_token: token,
+        refresh_token: String(session?.refresh_token || ""),
+        expires_in: Number(session?.expires_in || 3600),
+        token_type: String(session?.token_type || "bearer"),
+      },
+    };
+    const res = await fetch(`${cfg.url}/functions/v1/${ANDROID_HANDOFF_FUNCTION}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(String(json?.error || `Android handoff failed (${res.status})`));
+    }
+    const handoffCode = String(json?.handoff_code || "").trim();
+    if (!handoffCode) throw new Error("Android handoff code missing.");
+    return { handoffCode, expiresAt: String(json?.expires_at || "").trim() };
+  };
+
+  const buildDeepLink = (base, handoff) => {
+    try {
+      const u = new URL(base);
+      u.searchParams.set("handoff_code", String(handoff?.handoffCode || ""));
+      if (handoff?.expiresAt) u.searchParams.set("expires_at", String(handoff.expiresAt));
+      u.searchParams.set("source", "hitomicompanion");
+      return u.toString();
+    } catch {
+      return String(base || "");
+    }
+  };
+
+  const maybeReturnToAndroidApp = async (session) => {
+    if (!isAndroidAuthMode()) return;
+    if (!session?.user) return;
+    if (androidHandoffInFlight) return;
+    try {
+      if (window.sessionStorage?.getItem(ANDROID_HANDOFF_ONESHOT_KEY) === "1") return;
+    } catch {}
+
+    androidHandoffInFlight = true;
+    try {
+      setStatus("Signed in. Returning to Hitomi app...");
+      const handoff = await createAndroidHandoff(session);
+      try { window.sessionStorage?.setItem(ANDROID_HANDOFF_ONESHOT_KEY, "1"); } catch {}
+      const primary = buildDeepLink(ANDROID_DEEP_LINK_PRIMARY, handoff);
+      const fallback = buildDeepLink(ANDROID_DEEP_LINK_FALLBACK, handoff);
+      window.location.href = primary;
+      if (fallback && fallback !== primary) {
+        window.setTimeout(() => { window.location.href = fallback; }, 1200);
+      }
+    } catch (err) {
+      setStatus(err?.message || "Could not return to Hitomi app.", true);
+    } finally {
+      window.setTimeout(() => { androidHandoffInFlight = false; }, 1500);
+    }
   };
 
   const openOAuth = async (providerHint) => {
@@ -208,6 +301,7 @@
       return;
     }
     applySignedState(null);
+    try { window.sessionStorage?.removeItem(ANDROID_HANDOFF_ONESHOT_KEY); } catch {}
   });
 
   (async () => {
@@ -215,7 +309,11 @@
     await refreshSession();
     const c = getClient();
     if (c.ok) {
-      c.client.auth.onAuthStateChange((_evt, session) => applySignedState(session || null));
+      c.client.auth.onAuthStateChange((_evt, session) => {
+        const safeSession = session || null;
+        applySignedState(safeSession);
+        maybeReturnToAndroidApp(safeSession).catch(() => {});
+      });
     }
     pollingTimer = window.setInterval(() => {
       refreshSession().catch(() => {});
