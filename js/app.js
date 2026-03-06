@@ -144,7 +144,7 @@
       setStatus(c.error, true);
       return;
     }
-    const provider = providerHint === "x" ? "twitter" : "google";
+    const provider = providerHint === "x" ? "x" : "google";
     setStatus("Redirecting to sign-in...");
     const { data, error } = await c.client.auth.signInWithOAuth({
       provider,
